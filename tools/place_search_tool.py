@@ -7,8 +7,15 @@ from dotenv import load_dotenv
 class PlaceSearchTool:
     def __init__(self):
         load_dotenv()
-        self.google_api_key = os.environ.get("GPLACES_API_KEY")
-        self.google_places_search = GooglePlaceSearchTool(self.google_api_key)
+        self.geofy_api_key = os.environ.get("GEOFY_API_KEY") or os.environ.get("geofy_api_key")
+        self.google_places_search = None
+        if self.geofy_api_key:
+            try:
+                self.google_places_search = GooglePlaceSearchTool(self.geofy_api_key)
+            except Exception:
+                # Keep the app functional by falling back to Tavily when the configured
+                # key is missing or incompatible with the Google Places wrapper.
+                self.google_places_search = None
         self.tavily_search = TavilyPlaceSearchTool()
         self.place_search_tool_list = self._setup_tools()
 
@@ -18,6 +25,8 @@ class PlaceSearchTool:
         def search_attractions(place:str) -> str:
             """Search attractions of a place"""
             try:
+                if not self.google_places_search:
+                    raise ValueError("Configured place-search key is unavailable or invalid")
                 attraction_result = self.google_places_search.google_search_attractions(place)
                 if attraction_result:
                     return f"Following are the attractions of {place} as suggested by google: {attraction_result}"
@@ -29,6 +38,8 @@ class PlaceSearchTool:
         def search_restaurants(place:str) -> str:
             """Search restaurants of a place"""
             try:
+                if not self.google_places_search:
+                    raise ValueError("Configured place-search key is unavailable or invalid")
                 restaurants_result = self.google_places_search.google_search_restaurants(place)
                 if restaurants_result:
                     return f"Following are the restaurants of {place} as suggested by google: {restaurants_result}"
@@ -40,6 +51,8 @@ class PlaceSearchTool:
         def search_activities(place:str) -> str:
             """Search activities of a place"""
             try:
+                if not self.google_places_search:
+                    raise ValueError("Configured place-search key is unavailable or invalid")
                 restaurants_result = self.google_places_search.google_search_activity(place)
                 if restaurants_result:
                     return f"Following are the activities in and around {place} as suggested by google: {restaurants_result}"
@@ -51,6 +64,8 @@ class PlaceSearchTool:
         def search_transportation(place:str) -> str:
             """Search transportation of a place"""
             try:
+                if not self.google_places_search:
+                    raise ValueError("Configured place-search key is unavailable or invalid")
                 restaurants_result = self.google_places_search.google_search_transportation(place)
                 if restaurants_result:
                     return f"Following are the modes of transportation available in {place} as suggested by google: {restaurants_result}"

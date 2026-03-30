@@ -4,8 +4,8 @@ from langchain_tavily import TavilySearch
 from langchain_google_community import GooglePlacesTool, GooglePlacesAPIWrapper 
 
 class GooglePlaceSearchTool:
-    def __init__(self, api_key: str):
-        self.places_wrapper = GooglePlacesAPIWrapper(gplaces_api_key=api_key)
+    def __init__(self, geofy_api_key: str):
+        self.places_wrapper = GooglePlacesAPIWrapper(gplaces_api_key=geofy_api_key)
         self.places_tool = GooglePlacesTool(api_wrapper=self.places_wrapper)
     
     def google_search_attractions(self, place: str) -> dict:
